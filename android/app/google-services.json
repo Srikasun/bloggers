@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "689563463059",
+    "project_id": "apps-ee4d4",
+    "storage_bucket": "apps-ee4d4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:689563463059:android:732d65a6f2a39b72f2cc66",
+        "android_client_info": {
+          "package_name": "com.bloggy.bloggers"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyArBwFzgtylhdGUt-RskBZNYSTIJ_01mfE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
