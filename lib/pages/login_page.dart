@@ -1,4 +1,5 @@
 import 'package:bloggers/auth/auth_service.dart';
+import 'package:bloggers/components/loading_circle.dart';
 import 'package:bloggers/components/my_button.dart';
 import 'package:bloggers/components/my_textfield.dart';
 import 'package:bloggers/pages/home_page.dart';
@@ -22,11 +23,23 @@ class _LoginPageState extends State<LoginPage> {
 
   //log-in
   void login() async {
+    showLoadingCircle(context);
     try {
       await _auth.loginEmailPassword(
           emailController.text, passwordController.text);
+
+      //finished loading
+      if (mounted) hideLoadCircle(context);
     } catch (e) {
-      print(e.toString());
+      if (mounted) hideLoadCircle(context);
+
+      if (mounted) {
+        showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+                  title: Text(e.toString()),
+                ));
+      }
     }
 //fill auth
 

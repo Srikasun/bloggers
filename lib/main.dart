@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:bloggers/auth/auth_gate.dart';
 import 'package:bloggers/auth/login_or_regsiter_page.dart';
+import 'package:bloggers/services/database_provider.dart';
 import 'package:bloggers/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -23,6 +24,9 @@ void main() async {
     providers: [
       ChangeNotifierProvider(
         create: (context) => ThemeProvider(),
+      ),
+      ChangeNotifierProvider(
+        create: (context) => DatabaseProvider(),
       ),
     ],
     child: MyApp(),

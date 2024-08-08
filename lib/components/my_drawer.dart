@@ -1,10 +1,11 @@
 import 'package:bloggers/auth/auth_service.dart';
 import 'package:bloggers/components/my_drawer_tile.dart';
+import 'package:bloggers/pages/profile_page.dart';
 import 'package:bloggers/pages/settings_page.dart';
 import 'package:flutter/material.dart';
 
 class MyDrawer extends StatelessWidget {
-  const MyDrawer({super.key});
+  MyDrawer({super.key});
   final _auth = AuthService();
 
   void logout() {
@@ -41,6 +42,19 @@ class MyDrawer extends StatelessWidget {
           ),
 
           //profile list tile
+          MyDrawerTile(
+              icon: Icons.person,
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProfilePage(
+                        uid: _auth.getCurrentUid(),
+                      ),
+                    ));
+              },
+              text: ' P R O F I L E'),
 
           // search list tile
 
