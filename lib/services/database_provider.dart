@@ -1,29 +1,95 @@
 import 'package:bloggers/auth/auth_service.dart';
+import 'package:bloggers/models/post.dart';
 import 'package:bloggers/models/user.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:bloggers/services/database_services.dart';
 import 'package:flutter/material.dart';
 
 class DatabaseProvider extends ChangeNotifier {
   final _auth = AuthService();
-  final _db = FirebaseFirestore.instance;
+  final DatabaseServices _databaseServices = DatabaseServices();
 
+  // Local list of posts
+  List<Post> _allPosts = [];
+
+  // Get posts
+  List<Post> get allPosts => _allPosts;
+
+  // Fetch user profile
   Future<UserProfile?> userProfile(String uid) async {
-    DocumentSnapshot doc = await _db.collection('Users').doc(uid).get();
-    if (doc.exists) {
-      return UserProfile.fromDocument(doc);
-    }
-    return null;
+    return await _databaseServices.getUserFromFirebase(uid);
   }
 
   // Update user bio
-  Future<void> updateUserBioInFirebase(String bio) async {
+  Future<void> updateBio(String bio) async {
     String uid = _auth.getCurrentUid();
-    try {
-      await _db.collection('Users').doc(uid).update({'bio': bio});
-    } catch (e) {
-      print('Error updating user bio: $e');
+    await _databaseServices.updateUserBioInFirebase(uid, bio);
+    notifyListeners();
+  }
+
+  // Post a message
+  Future<void> postMessage(String message) async {
+    await _databaseServices.postMessageInFirebase(message);
+    await loadAllPosts();
+    notifyListeners();
+  }
+
+  // Load all posts
+  Future<void> loadAllPosts() async {
+    _allPosts = await _databaseServices.getAllPostFromFirebase();
+    initializeLikeMap();
+    notifyListeners();
+  }
+
+  List<Post> filterUserPosts(String uid) {
+    return _allPosts.where((post) => post.uid == uid).toList();
+  }
+
+  Future<void> deletePost(String postId) async {
+    await _databaseServices.deletePostFromFirebase(postId);
+    await loadAllPosts();
+  }
+
+  // Likes
+  Map<String, int> _likedCounts = {};
+  List<String> _likedPosts = [];
+
+  bool isPostLikedByCurrentuser(String postId) => _likedPosts.contains(postId);
+
+  int getLikeCount(String postId) => _likedCounts[postId] ?? 0;
+
+  void initializeLikeMap() {
+    final currentUserID = _auth.getCurrentUid();
+    _likedCounts.clear();
+    _likedPosts.clear();
+
+    for (var post in _allPosts) {
+      _likedCounts[post.id] = post.likecount;
+
+      if (post.likedBy.contains(currentUserID)) {
+        _likedPosts.add(post.id);
+      }
     }
   }
 
-  Future<void> updateBio(String bio) => updateUserBioInFirebase(bio);
+  Future<void> toggleLike(String postId) async {
+    final likedPostsOriginal = List<String>.from(_likedPosts);
+    final likedCountsOriginal = Map<String, int>.from(_likedCounts);
+
+    if (_likedPosts.contains(postId)) {
+      _likedPosts.remove(postId);
+      _likedCounts[postId] = (_likedCounts[postId] ?? 0) - 1;
+    } else {
+      _likedPosts.add(postId);
+      _likedCounts[postId] = (_likedCounts[postId] ?? 0) + 1;
+    }
+    notifyListeners();
+
+    try {
+      await _databaseServices.toggleLikeFirebase(postId);
+    } catch (e) {
+      _likedPosts = likedPostsOriginal;
+      _likedCounts = likedCountsOriginal;
+      notifyListeners();
+    }
+  }
 }
