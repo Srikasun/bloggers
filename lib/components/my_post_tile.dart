@@ -1,5 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:bloggers/auth/auth_service.dart';
+import 'package:bloggers/components/input_alert_box.dart';
 import 'package:bloggers/services/database_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +27,15 @@ class _MyPostTileState extends State<MyPostTile> {
   late final listeningProvider = Provider.of<DatabaseProvider>(context);
   late final databaseProvider =
       Provider.of<DatabaseProvider>(context, listen: false);
+
+//on startup
+  @override
+  void initState() {
+    super.initState();
+    //load comments
+    _loadComment();
+  }
+
   void _toggleLikePost() async {
     try {
       await databaseProvider.toggleLike(widget.post.id);
@@ -34,54 +44,80 @@ class _MyPostTileState extends State<MyPostTile> {
     }
   }
 
+  final _commentController = TextEditingController();
+  //open comment box
+  void _openNewCommentBox() {
+    showDialog(
+        context: context,
+        builder: (context) => InputAlertBox(
+            hintText: "Type a comment",
+            onPressed: () async {
+              await _addComment();
+            },
+            onPressedText: "Post",
+            textController: _commentController));
+  }
+
+  Future<void> _addComment() async {
+    if (_commentController.text.trim().isEmpty) return;
+    try {
+      await databaseProvider.addComment(
+          widget.post.id, _commentController.text.trim());
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> _loadComment() async {
+    await databaseProvider.loadComments(widget.post.id);
+  }
+
   void _showOptions() {
     String currentUid = AuthService().getCurrentUid();
     final bool isOwnPost = widget.post.uid == currentUid;
     showModalBottomSheet(
-        context: context,
-        builder: (context) {
-          return SafeArea(
-            child: Wrap(
-              children: [
-                //this post belongs to current user
-                if (isOwnPost)
-                  //delete message button
-                  ListTile(
-                    leading: Icon(Icons.delete),
-                    title: Text("Delete"),
-                    onTap: () async {
-                      Navigator.pop(context);
-                      await databaseProvider.deletePost(widget.post.id);
-                    },
-                  )
-//post not belongs to user
-                else ...[
-                  ListTile(
-                    leading: Icon(Icons.flag),
-                    title: Text("Report"),
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.block),
-                    title: Text("Block"),
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
+      context: context,
+      builder: (context) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              if (isOwnPost)
                 ListTile(
-                  leading: Icon(Icons.cancel),
-                  title: Text("Cancel"),
+                  leading: Icon(Icons.delete),
+                  title: Text("Delete"),
+                  onTap: () async {
+                    Navigator.pop(context);
+                    await databaseProvider.deletePost(widget.post.id);
+                  },
+                )
+              else ...[
+                ListTile(
+                  leading: Icon(Icons.flag),
+                  title: Text("Report"),
                   onTap: () {
                     Navigator.pop(context);
                   },
-                )
+                ),
+                ListTile(
+                  leading: Icon(Icons.block),
+                  title: Text("Block"),
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                ),
               ],
-            ),
-          );
-        });
+              ListTile(
+                leading: Icon(Icons.cancel),
+                title: Text("Cancel"),
+                onTap: () {
+                  Navigator.pop(context);
+                },
+              )
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -89,14 +125,17 @@ class _MyPostTileState extends State<MyPostTile> {
     bool likedByCurrentUser =
         listeningProvider.isPostLikedByCurrentuser(widget.post.id);
     int likeCount = listeningProvider.getLikeCount(widget.post.id);
+    //listen to comment count
+    int CommentCount = listeningProvider.getComments(widget.post.id).length;
     return GestureDetector(
       onTap: widget.onPostTap,
       child: Container(
         margin: EdgeInsets.symmetric(horizontal: 25, vertical: 5),
         padding: EdgeInsets.all(20),
         decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.secondary,
-            borderRadius: BorderRadius.circular(8)),
+          color: Theme.of(context).colorScheme.secondary,
+          borderRadius: BorderRadius.circular(8),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -108,64 +147,83 @@ class _MyPostTileState extends State<MyPostTile> {
                     Icons.person,
                     color: Theme.of(context).colorScheme.primary,
                   ),
-                  SizedBox(
-                    width: 10,
-                  ),
+                  SizedBox(width: 10),
                   Text(
                     widget.post.name,
                     style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
-                        fontWeight: FontWeight.bold),
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  SizedBox(
-                    width: 5,
-                  ),
-
-                  //username handle
+                  SizedBox(width: 5),
                   Text(
                     '@${widget.post.username}',
-                    style:
-                        TextStyle(color: Theme.of(context).colorScheme.primary),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
                   ),
                   Spacer(),
-                  //button delete
                   GestureDetector(
-                      onTap: _showOptions,
-                      child: Icon(
-                        Icons.more_horiz,
-                        color: Theme.of(context).colorScheme.primary,
-                      ))
+                    onTap: _showOptions,
+                    child: Icon(
+                      Icons.more_horiz,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  )
                 ],
               ),
             ),
-            SizedBox(
-              height: 20,
-            ),
+            SizedBox(height: 20),
             Text(
               widget.post.message,
               style: TextStyle(
                 color: Theme.of(context).colorScheme.inversePrimary,
               ),
             ),
-            SizedBox(
-              height: 25,
-            ),
+            SizedBox(height: 25),
             Row(
               children: [
-                GestureDetector(
-                    onTap: _toggleLikePost,
-                    child: likedByCurrentUser
-                        ? Icon(
-                            Icons.favorite,
-                            color: Colors.red,
-                          )
-                        : Icon(
-                            Icons.favorite_border,
-                            color: Theme.of(context).colorScheme.primary,
-                          )),
-                Text(likeCount.toString())
+                SizedBox(
+                  width: 60,
+                  child: Row(
+                    children: [
+                      GestureDetector(
+                        onTap: _toggleLikePost,
+                        child: likedByCurrentUser
+                            ? Icon(
+                                Icons.favorite,
+                                color: Colors.red,
+                              )
+                            : Icon(
+                                Icons.favorite_border,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                      ),
+                      Text(likeCount.toString())
+                    ],
+                  ),
+                ),
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: _openNewCommentBox,
+                      child: Icon(
+                        Icons.comment,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                    SizedBox(
+                      width: 5,
+                    ),
+                    Text(
+                      CommentCount != 0 ? CommentCount.toString() : '',
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary),
+                    )
+                  ],
+                )
               ],
-            )
+            ),
           ],
         ),
       ),

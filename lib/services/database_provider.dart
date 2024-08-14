@@ -1,4 +1,5 @@
 import 'package:bloggers/auth/auth_service.dart';
+import 'package:bloggers/models/comment.dart';
 import 'package:bloggers/models/post.dart';
 import 'package:bloggers/models/user.dart';
 import 'package:bloggers/services/database_services.dart';
@@ -91,5 +92,27 @@ class DatabaseProvider extends ChangeNotifier {
       _likedCounts = likedCountsOriginal;
       notifyListeners();
     }
+  }
+
+  final Map<String, List<Comment>> _comments = {};
+
+  List<Comment> getComments(String postId) => _comments[postId] ?? [];
+
+  Future<void> loadComments(String postId) async {
+    final allComments = await _databaseServices.getCommentsFromFirebase(postId);
+    _comments[postId] = allComments;
+    notifyListeners();
+  }
+
+  //add a comment
+  Future<void> addComment(String postId, message) async {
+    await _databaseServices.addCommentInFirebase(postId, message);
+    await loadComments(postId);
+  }
+
+  //delete a comment
+  Future<void> deleteComment(String commentId, postId) async {
+    await _databaseServices.deleteComment(commentId);
+    await loadComments(postId);
   }
 }

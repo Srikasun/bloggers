@@ -1,3 +1,4 @@
+import 'package:bloggers/models/comment.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:bloggers/models/post.dart';
@@ -112,13 +113,64 @@ class DatabaseServices {
           currentLikeCount--;
         }
 
+        print('Updated likes: $likedBy');
+        print('Updated like count: $currentLikeCount');
+
         transaction.update(postDoc, {
           'likecount': currentLikeCount,
           'likedBy': likedBy,
         });
       });
     } catch (e) {
+      print('Error toggling like: $e');
+    }
+  }
+
+  //add comment to a post
+  Future<void> addCommentInFirebase(String postId, message) async {
+    try {
+      String uid = _auth.currentUser!.uid;
+      UserProfile? user = await getUserFromFirebase(uid);
+
+      //create a commen
+      Comment newComment = Comment(
+          id: '',
+          postId: postId,
+          uid: uid,
+          name: user!.name,
+          username: user.username,
+          message: message,
+          timestamp: Timestamp.now());
+
+      //convert to map
+      Map<String, dynamic> newCommentMap = newComment.toMap();
+
+      await _db.collection("Comments").add(newCommentMap);
+    } catch (e) {
       print(e);
+    }
+  }
+
+  //delete comment
+  Future<void> deleteComment(String commentid) async {
+    try {
+      await _db.collection("Comments").doc(commentid).delete();
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  //fetch comment
+  Future<List<Comment>> getCommentsFromFirebase(String postId) async {
+    try {
+      QuerySnapshot snapshot = await _db
+          .collection("Comments")
+          .where("postId", isEqualTo: postId)
+          .get();
+      return snapshot.docs.map((doc) => Comment.fromDocument(doc)).toList();
+    } catch (e) {
+      print(e);
+      return [];
     }
   }
 }
