@@ -1,11 +1,10 @@
-import 'package:bloggers/auth/auth_service.dart';
-import 'package:bloggers/components/input_alert_box.dart';
-import 'package:bloggers/components/my_bio_box.dart';
-import 'package:bloggers/components/my_post_tile.dart';
-import 'package:bloggers/helper/navigation_pages.dart';
-import 'package:bloggers/models/user.dart';
-import 'package:bloggers/services/database_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:inkhaven/components/input_alert_box.dart';
+import 'package:inkhaven/components/my_bio_box.dart';
+import 'package:inkhaven/components/my_post_tile.dart';
+import 'package:inkhaven/helper/navigation_pages.dart';
+import 'package:inkhaven/models/user.dart';
+import 'package:inkhaven/services/database_provider.dart';
 import 'package:provider/provider.dart';
 
 class ProfilePage extends StatefulWidget {

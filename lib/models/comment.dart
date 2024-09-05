@@ -9,25 +9,33 @@ class Comment {
   final String message;
   final Timestamp timestamp;
 
-  Comment(
-      {required this.id,
-      required this.postId,
-      required this.uid,
-      required this.name,
-      required this.username,
-      required this.message,
-      required this.timestamp});
-  //convert firestore data into a comment object
+  Comment({
+    required this.id,
+    required this.postId,
+    required this.uid,
+    required this.name,
+    required this.username,
+    required this.message,
+    required this.timestamp,
+  });
+
+  // Convert Firestore data into a Comment object
   factory Comment.fromDocument(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>?;
+
     return Comment(
-        id: doc.id,
-        postId: doc['postId'],
-        uid: doc['uid'],
-        name: doc['name'],
-        username: doc['username'],
-        message: doc['message'],
-        timestamp: doc['message']);
+      id: doc.id,
+      postId: data?['postId'] ?? '',
+      uid: data?['uid'] ?? '',
+      name: data?['name'] ?? '',
+      username: data?['username'] ?? '',
+      message: data?['message'] ?? '',
+      timestamp:
+          data?['timestamp'] ?? Timestamp.now(), // Assign 'timestamp' properly
+    );
   }
+
+  // Convert the comment object to a map to store in Firestore
   Map<String, dynamic> toMap() {
     return {
       'postId': postId,
@@ -35,7 +43,7 @@ class Comment {
       'name': name,
       'username': username,
       'message': message,
-      'timestamp': timestamp
+      'timestamp': timestamp,
     };
   }
 }

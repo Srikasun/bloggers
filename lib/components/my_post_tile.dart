@@ -1,11 +1,11 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'package:bloggers/auth/auth_service.dart';
-import 'package:bloggers/components/input_alert_box.dart';
-import 'package:bloggers/services/database_provider.dart';
+import 'package:inkhaven/auth/auth_service.dart';
+import 'package:inkhaven/components/input_alert_box.dart';
+import 'package:inkhaven/services/database_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import 'package:bloggers/models/post.dart';
+import 'package:inkhaven/models/post.dart';
 import 'package:provider/provider.dart';
 
 class MyPostTile extends StatefulWidget {
@@ -28,12 +28,20 @@ class _MyPostTileState extends State<MyPostTile> {
   late final databaseProvider =
       Provider.of<DatabaseProvider>(context, listen: false);
 
-//on startup
+  final _commentController = TextEditingController();
+
+  //on startup
   @override
   void initState() {
     super.initState();
-    //load comments
+    // Load comments
     _loadComment();
+  }
+
+  Future<void> _loadComment() async {
+    print('Loading comments for post: ${widget.post.id}');
+    await databaseProvider.loadComments(widget.post.id);
+    print('Comments loaded: ${listeningProvider.getComments(widget.post.id)}');
   }
 
   void _toggleLikePost() async {
@@ -44,7 +52,6 @@ class _MyPostTileState extends State<MyPostTile> {
     }
   }
 
-  final _commentController = TextEditingController();
   //open comment box
   void _openNewCommentBox() {
     showDialog(
@@ -63,13 +70,10 @@ class _MyPostTileState extends State<MyPostTile> {
     try {
       await databaseProvider.addComment(
           widget.post.id, _commentController.text.trim());
+      _commentController.clear();
     } catch (e) {
       print(e);
     }
-  }
-
-  Future<void> _loadComment() async {
-    await databaseProvider.loadComments(widget.post.id);
   }
 
   void _showOptions() {
@@ -96,6 +100,7 @@ class _MyPostTileState extends State<MyPostTile> {
                   title: Text("Report"),
                   onTap: () {
                     Navigator.pop(context);
+                    _reportPostConfirmationBox();
                   },
                 ),
                 ListTile(
@@ -103,6 +108,7 @@ class _MyPostTileState extends State<MyPostTile> {
                   title: Text("Block"),
                   onTap: () {
                     Navigator.pop(context);
+                    _reportblockConfirmationBox();
                   },
                 ),
               ],
@@ -120,13 +126,61 @@ class _MyPostTileState extends State<MyPostTile> {
     );
   }
 
+  void _reportPostConfirmationBox() {
+    showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+              title: Text("Report message"),
+              content: Text("Are you sure wnt to report this message"),
+              actions: [
+                TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text("Cancel")),
+                TextButton(
+                  onPressed: () async {
+                    await databaseProvider.reportUser(
+                        widget.post.id, widget.post.uid);
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Message Reported")));
+                  },
+                  child: Text("Report"),
+                )
+              ],
+            ));
+  }
+
+  void _reportblockConfirmationBox() {
+    showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+              title: Text("Block User"),
+              content: Text("Are you sure wnt to Block this user"),
+              actions: [
+                TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text("Cancel")),
+                TextButton(
+                  onPressed: () async {
+                    await databaseProvider.blockUser(widget.post.uid);
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context)
+                        .showSnackBar(SnackBar(content: Text("user blocked")));
+                  },
+                  child: Text("Block"),
+                )
+              ],
+            ));
+  }
+
   @override
   Widget build(BuildContext context) {
     bool likedByCurrentUser =
         listeningProvider.isPostLikedByCurrentuser(widget.post.id);
     int likeCount = listeningProvider.getLikeCount(widget.post.id);
     //listen to comment count
-    int CommentCount = listeningProvider.getComments(widget.post.id).length;
+    int commentCount = listeningProvider.getComments(widget.post.id).length;
+
     return GestureDetector(
       onTap: widget.onPostTap,
       child: Container(
@@ -216,7 +270,7 @@ class _MyPostTileState extends State<MyPostTile> {
                       width: 5,
                     ),
                     Text(
-                      CommentCount != 0 ? CommentCount.toString() : '',
+                      commentCount.toString(),
                       style: TextStyle(
                           color: Theme.of(context).colorScheme.primary),
                     )

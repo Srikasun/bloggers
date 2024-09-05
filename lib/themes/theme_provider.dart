@@ -1,6 +1,6 @@
-import 'package:bloggers/themes/dark_theme.dart';
-import 'package:bloggers/themes/light_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:inkhaven/themes/dark_theme.dart';
+import 'package:inkhaven/themes/light_theme.dart';
 
 class ThemeProvider with ChangeNotifier {
   ThemeData _themeData = lightMode;

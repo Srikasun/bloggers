@@ -1,8 +1,9 @@
-import 'package:bloggers/models/comment.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:bloggers/models/post.dart';
-import 'package:bloggers/models/user.dart';
+
+import 'package:inkhaven/models/comment.dart';
+import 'package:inkhaven/models/post.dart';
+import 'package:inkhaven/models/user.dart';
 
 class DatabaseServices {
   final _db = FirebaseFirestore.instance;
@@ -167,10 +168,38 @@ class DatabaseServices {
           .collection("Comments")
           .where("postId", isEqualTo: postId)
           .get();
-      return snapshot.docs.map((doc) => Comment.fromDocument(doc)).toList();
+      List<Comment> comments =
+          snapshot.docs.map((doc) => Comment.fromDocument(doc)).toList();
+      print('Fetched comments: $comments');
+      return comments;
     } catch (e) {
-      print(e);
+      print('Error fetching comments for post $postId: $e');
       return [];
     }
+  }
+
+  //report
+  Future<void> reportUserInFirebase(String postId, userId) async {
+    final currentUserId = _auth.currentUser!.uid;
+
+    //create areport
+    final report = {
+      'reportedBy': currentUserId,
+      'messageId': postId,
+      'messageOwnerId': userId,
+      'timeStamp': FieldValue.serverTimestamp()
+    };
+    await _db.collection("Reports").add(report);
+  }
+
+  Future<void> blockUserInFirebase(String userId) async {
+    final currentUserId = _auth.currentUser!.uid;
+
+    await _db
+        .collection("Users")
+        .doc(currentUserId)
+        .collection("BlockedUsers")
+        .doc(userId)
+        .set({});
   }
 }

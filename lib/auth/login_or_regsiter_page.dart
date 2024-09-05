@@ -1,5 +1,5 @@
-import 'package:bloggers/pages/login_page.dart';
-import 'package:bloggers/pages/register_page.dart';
+import 'package:inkhaven/pages/login_page.dart';
+import 'package:inkhaven/pages/register_page.dart';
 import 'package:flutter/material.dart';
 
 class LoginOrRegister extends StatefulWidget {

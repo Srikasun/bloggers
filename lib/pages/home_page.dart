@@ -1,9 +1,9 @@
-import 'package:bloggers/components/input_alert_box.dart';
-import 'package:bloggers/components/my_drawer.dart';
-import 'package:bloggers/components/my_post_tile.dart';
-import 'package:bloggers/helper/navigation_pages.dart';
-import 'package:bloggers/models/post.dart';
-import 'package:bloggers/services/database_provider.dart';
+import 'package:inkhaven/components/input_alert_box.dart';
+import 'package:inkhaven/components/my_drawer.dart';
+import 'package:inkhaven/components/my_post_tile.dart';
+import 'package:inkhaven/helper/navigation_pages.dart';
+import 'package:inkhaven/models/post.dart';
+import 'package:inkhaven/services/database_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -54,10 +54,10 @@ class _HomePageState extends State<HomePage> {
           backgroundColor: Theme.of(context).colorScheme.background,
           appBar: AppBar(
             title: Text(
-              'Home',
+              'INKHAVEN',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.primary,
+                color: Theme.of(context).colorScheme.inversePrimary,
               ),
             ),
             centerTitle: true,

@@ -1,11 +1,11 @@
 import 'dart:math';
 
-import 'package:bloggers/auth/auth_service.dart';
-import 'package:bloggers/components/loading_circle.dart';
-import 'package:bloggers/components/my_button.dart';
-import 'package:bloggers/components/my_textfield.dart';
-import 'package:bloggers/services/database_services.dart';
 import 'package:flutter/material.dart';
+import 'package:inkhaven/auth/auth_service.dart';
+import 'package:inkhaven/components/loading_circle.dart';
+import 'package:inkhaven/components/my_button.dart';
+import 'package:inkhaven/components/my_textfield.dart';
+import 'package:inkhaven/services/database_services.dart';
 
 class RegisterPage extends StatefulWidget {
   final void Function()? onTap;
@@ -38,7 +38,9 @@ class _RegisterPageState extends State<RegisterPage> {
         if (mounted) hideLoadCircle(context);
 
         await _db.saveUserInfoInFirebase(
-            name: nameController.text, email: emailController.text);
+          name: nameController.text,
+          email: emailController.text,
+        );
       } catch (e) {
         if (mounted) hideLoadCircle(context);
 

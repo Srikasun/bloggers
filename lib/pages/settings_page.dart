@@ -1,7 +1,7 @@
-import 'package:bloggers/pages/settings_tile.dart';
-import 'package:bloggers/themes/theme_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:inkhaven/pages/settings_tile.dart';
+import 'package:inkhaven/themes/theme_provider.dart';
 import 'package:provider/provider.dart';
 
 class SettingsPage extends StatelessWidget {

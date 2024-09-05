@@ -1,9 +1,9 @@
-import 'package:bloggers/auth/auth_service.dart';
-import 'package:bloggers/models/comment.dart';
-import 'package:bloggers/models/post.dart';
-import 'package:bloggers/models/user.dart';
-import 'package:bloggers/services/database_services.dart';
 import 'package:flutter/material.dart';
+import 'package:inkhaven/auth/auth_service.dart';
+import 'package:inkhaven/models/comment.dart';
+import 'package:inkhaven/models/post.dart';
+import 'package:inkhaven/models/user.dart';
+import 'package:inkhaven/services/database_services.dart';
 
 class DatabaseProvider extends ChangeNotifier {
   final _auth = AuthService();
@@ -114,5 +114,15 @@ class DatabaseProvider extends ChangeNotifier {
   Future<void> deleteComment(String commentId, postId) async {
     await _databaseServices.deleteComment(commentId);
     await loadComments(postId);
+  }
+
+  Future<void> blockUser(String userId) async {
+    await _databaseServices.blockUserInFirebase(userId);
+    await loadAllPosts();
+    notifyListeners();
+  }
+
+  Future<void> reportUser(String postId, userId) async {
+    await _databaseServices.reportUserInFirebase(postId, userId);
   }
 }

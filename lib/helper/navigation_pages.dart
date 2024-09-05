@@ -1,6 +1,6 @@
-import 'package:bloggers/models/post.dart';
-import 'package:bloggers/pages/post_page.dart';
-import 'package:bloggers/pages/profile_page.dart';
+import 'package:inkhaven/models/post.dart';
+import 'package:inkhaven/pages/post_page.dart';
+import 'package:inkhaven/pages/profile_page.dart';
 import 'package:flutter/material.dart';
 
 void goUserPage(BuildContext context, String uid) {

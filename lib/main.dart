@@ -1,10 +1,11 @@
 import 'dart:io';
 
-import 'package:bloggers/auth/auth_gate.dart';
-import 'package:bloggers/services/database_provider.dart';
-import 'package:bloggers/themes/theme_provider.dart';
-import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
+import 'package:inkhaven/auth/auth_gate.dart';
+import 'package:inkhaven/pages/splash_screen.dart';
+import 'package:inkhaven/services/database_provider.dart';
+import 'package:inkhaven/themes/theme_provider.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
@@ -49,8 +50,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: AuthGate(),
       theme: Provider.of<ThemeProvider>(context).themeData,
+      home: SplashScreen(), // Set the SplashScreen as the initial route
+      routes: {
+        '/auth': (context) => AuthGate(), // Define the AuthGate route
+        // Add other routes as needed
+      },
     );
   }
 }

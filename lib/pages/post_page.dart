@@ -1,11 +1,11 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'package:bloggers/components/my_comment_tile.dart';
-import 'package:bloggers/components/my_post_tile.dart';
-import 'package:bloggers/helper/navigation_pages.dart';
-import 'package:bloggers/services/database_provider.dart';
+import 'package:inkhaven/components/my_comment_tile.dart';
+import 'package:inkhaven/components/my_post_tile.dart';
+import 'package:inkhaven/helper/navigation_pages.dart';
+import 'package:inkhaven/services/database_provider.dart';
 import 'package:flutter/material.dart';
 
-import 'package:bloggers/models/post.dart';
+import 'package:inkhaven/models/post.dart';
 import 'package:provider/provider.dart';
 
 class PostPage extends StatefulWidget {

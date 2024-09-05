@@ -1,8 +1,8 @@
-import 'package:bloggers/auth/auth_service.dart';
-import 'package:bloggers/components/loading_circle.dart';
-import 'package:bloggers/components/my_button.dart';
-import 'package:bloggers/components/my_textfield.dart';
-import 'package:bloggers/pages/home_page.dart';
+import 'package:inkhaven/auth/auth_service.dart';
+import 'package:inkhaven/components/loading_circle.dart';
+import 'package:inkhaven/components/my_button.dart';
+import 'package:inkhaven/components/my_textfield.dart';
+import 'package:inkhaven/pages/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -18,37 +18,71 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _auth = AuthService();
   final TextEditingController emailController = TextEditingController();
-
   final TextEditingController passwordController = TextEditingController();
 
   //log-in
   void login() async {
+    // Check if email and password fields are empty
+    if (emailController.text.isEmpty || passwordController.text.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text("Error"),
+          content: const Text("Please enter both email and password."),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text("OK"),
+            ),
+          ],
+        ),
+      );
+      return; // Stop further execution if fields are empty
+    }
+
+    // Show loading indicator
     showLoadingCircle(context);
+
     try {
+      // Attempt login
       await _auth.loginEmailPassword(
           emailController.text, passwordController.text);
 
-      //finished loading
-      if (mounted) hideLoadCircle(context);
-    } catch (e) {
+      // Hide loading indicator
       if (mounted) hideLoadCircle(context);
 
-      if (mounted) {
-        showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-                  title: Text(e.toString()),
-                ));
-      }
-    }
-//fill auth
-
-//navigate to homepage
-    Navigator.push(
+      // Navigate to the home page if login is successful
+      Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => HomePage(),
-        ));
+        ),
+      );
+    } catch (e) {
+      // Hide loading indicator
+      if (mounted) hideLoadCircle(context);
+
+      // Show error message
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text("Login Failed"),
+            content: Text(e.toString()),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text("OK"),
+              ),
+            ],
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -70,7 +104,7 @@ class _LoginPageState extends State<LoginPage> {
 
           //welcome msg
           Text(
-            'Welcome back , you\ve been missed!',
+            'Welcome back, you\'ve been missed!',
             style: TextStyle(
               fontSize: 16,
               color: Theme.of(context).colorScheme.inversePrimary,
@@ -114,7 +148,7 @@ class _LoginPageState extends State<LoginPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'Not a member ?',
+                'Not a member?',
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.inversePrimary,
                 ),
@@ -122,7 +156,7 @@ class _LoginPageState extends State<LoginPage> {
               GestureDetector(
                 onTap: widget.onTap,
                 child: Text(
-                  'Register now ',
+                  'Register now',
                   style: TextStyle(
                       color: Theme.of(context).colorScheme.inversePrimary,
                       fontWeight: FontWeight.bold),

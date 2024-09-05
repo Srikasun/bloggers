@@ -1,15 +1,23 @@
-import 'package:bloggers/auth/auth_service.dart';
-import 'package:bloggers/components/my_drawer_tile.dart';
-import 'package:bloggers/pages/profile_page.dart';
-import 'package:bloggers/pages/settings_page.dart';
+import 'package:inkhaven/auth/auth_service.dart';
+import 'package:inkhaven/components/my_drawer_tile.dart';
+import 'package:inkhaven/pages/profile_page.dart';
+import 'package:inkhaven/pages/settings_page.dart';
 import 'package:flutter/material.dart';
 
 class MyDrawer extends StatelessWidget {
   MyDrawer({super.key});
   final _auth = AuthService();
 
-  void logout() {
-    _auth.logout();
+  Future<void> logout(BuildContext context) async {
+    try {
+      await _auth.logout();
+      Navigator.of(context).popUntil((route) => route.isFirst);
+      Navigator.pushReplacementNamed(context,
+          '/auth'); // Assuming you have a named route for the AuthGate or login page
+    } catch (e) {
+      // Handle logout error if needed
+      print('Logout error: $e');
+    }
   }
 
   @override
@@ -18,7 +26,7 @@ class MyDrawer extends StatelessWidget {
       backgroundColor: Theme.of(context).colorScheme.background,
       child: Column(
         children: [
-          //logo
+          // Logo
           Padding(
             padding: const EdgeInsets.only(top: 80.0),
             child: Icon(
@@ -34,31 +42,31 @@ class MyDrawer extends StatelessWidget {
             ),
           ),
 
-          //home list tile
+          // Home list tile
           MyDrawerTile(
             icon: Icons.home,
             onTap: () => Navigator.pop(context),
             text: 'H O M E ',
           ),
 
-          //profile list tile
+          // Profile list tile
           MyDrawerTile(
-              icon: Icons.person,
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ProfilePage(
-                        uid: _auth.getCurrentUid(),
-                      ),
-                    ));
-              },
-              text: ' P R O F I L E'),
+            icon: Icons.person,
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ProfilePage(
+                    uid: _auth.getCurrentUid(),
+                  ),
+                ),
+              );
+            },
+            text: 'P R O F I L E',
+          ),
 
-          // search list tile
-
-          //settings list tile
+          // Settings list tile
           MyDrawerTile(
             icon: Icons.settings,
             onTap: () {
@@ -73,11 +81,11 @@ class MyDrawer extends StatelessWidget {
             text: 'S E T T I N G S ',
           ),
           Spacer(),
-          //logout list tile
+          // Logout list tile
           MyDrawerTile(
             icon: Icons.logout,
-            onTap: () {
-              logout();
+            onTap: () async {
+              await logout(context);
             },
             text: 'L O G O U T ',
           ),
