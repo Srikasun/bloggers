@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:inkhaven/models/comment.dart';
 import 'package:inkhaven/models/post.dart';
 import 'package:inkhaven/models/user.dart';
-import 'package:inkhaven/services/analytics_service.dart';
 
 class DatabaseServices {
   final _db = FirebaseFirestore.instance;
@@ -39,8 +38,6 @@ class DatabaseServices {
     return null;
   }
 
-  // Inside postMessageInFirebase in database_services.dart
-
   Future<void> postMessageInFirebase(String message) async {
     try {
       String uid = _auth.currentUser!.uid;
@@ -63,12 +60,6 @@ class DatabaseServices {
 
         // Update the post ID after creation
         await docRef.update({'id': docRef.id});
-
-        // Log analytics event for post creation
-        await AnalyticsService().logEvent(
-          eventName: 'post_created',
-          parameters: {'postId': docRef.id, 'uid': uid},
-        );
       }
     } catch (e) {
       print(e);

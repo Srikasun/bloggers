@@ -1,12 +1,11 @@
-// my_post_tile.dart (modified parts only)
-import 'package:flutter/material.dart';
-import 'package:inkhaven/components/input_alert_box.dart';
-import 'package:inkhaven/models/post.dart';
-import 'package:inkhaven/helper/navigation_pages.dart';
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:inkhaven/auth/auth_service.dart';
+import 'package:inkhaven/components/input_alert_box.dart';
 import 'package:inkhaven/services/database_provider.dart';
-import 'package:inkhaven/services/seo_service.dart'; // Import the new SEO service
-import 'package:share_plus/share_plus.dart'; // Import share_plus package
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+
+import 'package:inkhaven/models/post.dart';
 import 'package:provider/provider.dart';
 
 class MyPostTile extends StatefulWidget {
@@ -174,33 +173,13 @@ class _MyPostTileState extends State<MyPostTile> {
             ));
   }
 
-  // Existing DatabaseServices, controllers, etc. remain here.
-
-  // Existing functions such as _toggleLikePost, _openNewCommentBox, _showOptions, etc.
-
-  /// New function to share the post using a dynamic link.
-  Future<void> _sharePost() async {
-    try {
-      // Generate a dynamic link for the post using the SEO service
-      Uri dynamicLink =
-          await SeoService().createDynamicLinkForPost(widget.post.id);
-      // Open the share dialog with the dynamic link
-      await Share.share('Check out this post on Inkhaven: $dynamicLink');
-    } catch (e) {
-      print("Error generating dynamic link: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Failed to generate share link")));
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    // Get providers for like and comment counts
-    final databaseProvider = Provider.of<DatabaseProvider>(context);
     bool likedByCurrentUser =
-        databaseProvider.isPostLikedByCurrentuser(widget.post.id);
-    int likeCount = databaseProvider.getLikeCount(widget.post.id);
-    int commentCount = databaseProvider.getComments(widget.post.id).length;
+        listeningProvider.isPostLikedByCurrentuser(widget.post.id);
+    int likeCount = listeningProvider.getLikeCount(widget.post.id);
+    //listen to comment count
+    int commentCount = listeningProvider.getComments(widget.post.id).length;
 
     return GestureDetector(
       onTap: widget.onPostTap,
@@ -214,7 +193,6 @@ class _MyPostTileState extends State<MyPostTile> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Existing header with user icon and name
             GestureDetector(
               onTap: widget.onUserTap,
               child: Row(
@@ -240,7 +218,7 @@ class _MyPostTileState extends State<MyPostTile> {
                   ),
                   Spacer(),
                   GestureDetector(
-                    onTap: _showOptions, // existing options menu function
+                    onTap: _showOptions,
                     child: Icon(
                       Icons.more_horiz,
                       color: Theme.of(context).colorScheme.primary,
@@ -250,7 +228,6 @@ class _MyPostTileState extends State<MyPostTile> {
               ),
             ),
             SizedBox(height: 20),
-            // Post message
             Text(
               widget.post.message,
               style: TextStyle(
@@ -258,7 +235,6 @@ class _MyPostTileState extends State<MyPostTile> {
               ),
             ),
             SizedBox(height: 25),
-            // Action buttons row (Like, Comment, and new Share)
             Row(
               children: [
                 SizedBox(
@@ -290,21 +266,14 @@ class _MyPostTileState extends State<MyPostTile> {
                         color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
-                    SizedBox(width: 5),
+                    SizedBox(
+                      width: 5,
+                    ),
                     Text(
                       commentCount.toString(),
                       style: TextStyle(
                           color: Theme.of(context).colorScheme.primary),
-                    ),
-                    SizedBox(width: 10),
-                    // New Share Icon
-                    GestureDetector(
-                      onTap: _sharePost,
-                      child: Icon(
-                        Icons.share,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
+                    )
                   ],
                 )
               ],
