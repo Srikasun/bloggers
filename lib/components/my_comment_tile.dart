@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:inkhaven/auth/auth_service.dart';
 
 import 'package:inkhaven/models/comment.dart';
-import 'package:inkhaven/services/database_provider.dart';
+
 import 'package:inkhaven/services/database_services.dart';
-import 'package:provider/provider.dart';
+
 
 class MyCommentTile extends StatefulWidget {
   final Comment comment;

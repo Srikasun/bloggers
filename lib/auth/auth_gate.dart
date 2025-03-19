@@ -2,8 +2,7 @@ import 'package:inkhaven/auth/login_or_regsiter_page.dart';
 import 'package:inkhaven/pages/home_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:inkhaven/auth/login_or_regsiter_page.dart';
-import 'package:inkhaven/pages/home_page.dart';
+
 
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
